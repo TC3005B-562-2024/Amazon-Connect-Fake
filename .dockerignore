@@ -1,0 +1,13 @@
+.git
+Dockerfile
+.DS_Store
+.gitignore
+.dockerignore
+__pycache__/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
