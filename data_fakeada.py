@@ -4,6 +4,7 @@ Object classes to fake data
 
 import math
 import random
+from datetime import timedelta
 from faker import Faker
 
 
@@ -14,15 +15,33 @@ class FakeInfo:
 
     def __init__(self):
         self.fake = Faker()
+        self.fake_names = [self.fake.name() for _ in range(100)]
+        self.fake_contacts_ids = [random.randint(1000, 9999) for _ in range(100)]
+        self.fake_durations = [
+            timedelta(minutes=random.randint(3, 9), seconds=random.randint(0, 59))
+            for _ in range(100)
+        ]
+        self.fake_asas = [
+            timedelta(minutes=random.randint(0, 5), seconds=random.randint(0, 59))
+            for _ in range(100)
+        ]
+        self.fake_bad_service_levels = [random.randint(20, 60) for _ in range(100)]
+        self.fake_good_service_levels = [random.randint(80, 99) for _ in range(100)]
 
-    def fake_info(self, resource_type, is_solved):
+    def format_timedelta(self, td: timedelta) -> str:
+        """
+        Format timedelta to minutes and seconds like mm:ss
+        """
+        minutes, seconds = divmod(td.total_seconds(), 60)
+        return f"{int(minutes):02}:{int(seconds):02}"
+
+    def fake_info(self, alert_id, resource_type, is_solved):
         """
         Fake agent info
         """
 
-        service_level, acr, asa, fcr, adherence = 0, 0, 0, 0, 0
-        service_level_color, acr_color, asa_color, fcr_color, adherence_color = (
-            "yellow",
+        acr, asa, fcr, adherence = 0, 0, 0, 0
+        acr_color, asa_color, fcr_color, adherence_color = (
             "red",
             "red",
             "red",
@@ -30,8 +49,6 @@ class FakeInfo:
         )
 
         if is_solved:
-            service_level = random.randint(80, 100)
-            service_level_color = "green"
             acr = random.randint(10, 20)
             acr_color = "green"
             asa = f"{random.randint(0, 2)}:{random.randint(0, 59)} min"
@@ -40,14 +57,12 @@ class FakeInfo:
             fcr_color = "green"
             adherence = random.randint(60, 80)
         else:
-            service_level = random.randint(20, 60)
-            if service_level < 35:
-                service_level_color = "red"
             acr = random.randint(40, 70)
             asa = f"{random.randint(7, 9)}:{random.randint(0, 59)} min"
             fcr = random.randint(5, 20)
             adherence = random.randint(10, 50)
 
+        ##################################### ROUTING PROFILE ######################################
         if resource_type == "routing-profile":
 
             return [
@@ -64,8 +79,11 @@ class FakeInfo:
                     "elements": [
                         {
                             "title": "Service Level",
-                            "content": f"{service_level}",
-                            "color": f"{service_level_color}",
+                            "content": f"{self.fake_good_service_levels[alert_id]\
+                                            + random.randint(-1,1) if is_solved\
+                                            else self.fake_bad_service_levels[alert_id]\
+                                            + random.randint(-1,1)}",
+                            "color": f"{"green" if is_solved else "red"}",
                         },
                         {"title": "ACR", "content": f"{acr}", "color": f"{acr_color}"},
                         {"title": "ASA", "content": f"{asa}", "color": f"{asa_color}"},
@@ -78,6 +96,7 @@ class FakeInfo:
                     ],
                 },
             ]
+        ######################################## QUEUE ########################################
         elif resource_type == "queue":
             total_agents = random.randint(2, 12)
             active_agents = 0
@@ -117,8 +136,11 @@ class FakeInfo:
                     "elements": [
                         {
                             "title": "Service Level",
-                            "content": f"{service_level}",
-                            "color": f"{service_level_color}",
+                            "content": f"{self.fake_good_service_levels[alert_id]\
+                                            + random.randint(-1,1) if is_solved\
+                                            else self.fake_bad_service_levels[alert_id]\
+                                            + random.randint(-1,1)}",
+                            "color": f"{"green" if is_solved else "red"}",
                         },
                         {"title": "ACR", "content": f"{acr}", "color": f"{acr_color}"},
                         {"title": "ASA", "content": f"{asa}", "color": f"{asa_color}"},
@@ -131,14 +153,18 @@ class FakeInfo:
                     ],
                 },
             ]
+        ######################################## AGENT ########################################
         elif resource_type == "agent":
+            # add a second to the duration
+            self.fake_durations[alert_id] += timedelta(seconds=1)
+            self.fake_asas[alert_id] += timedelta(seconds=random.randint(-1, 1))
             return [
                 {
                     "title": "Information",
                     "elements": [
                         {
                             "title": "Name",
-                            "content": f"{self.fake.name()}",
+                            "content": f"{self.fake_names[alert_id]}",
                             "color": "black",
                         },
                         {"title": "Skill", "content": "Support", "color": "black"},
@@ -153,19 +179,20 @@ class FakeInfo:
                     "title": "Contact Information",
                     "elements": [
                         {
-                            "title": "ARN",
-                            "content": f"agent:{random.randint(1000, 9999)}",
+                            "title": "ID",
+                            "content": f"{self.fake_contacts_ids[alert_id]}",
                             "color": "black",
                         },
                         {
                             "title": "Duration",
-                            "content": f"{random.randint(7, 9)}:{random.randint(0, 59)} min",
+                            "content": f"{\
+                                self.format_timedelta(self.fake_durations[alert_id])} min",
                             "color": "red",
                         },
                         {
                             "title": "Emotion",
-                            "content": "Negative",
-                            "color": "red",
+                            "content": f"{"POSITIVE" if is_solved else "NEGATIVE"}",
+                            "color": f"{"green" if is_solved else "red"}",
                         },
                     ],
                 },
@@ -174,11 +201,16 @@ class FakeInfo:
                     "elements": [
                         {
                             "title": "Service Level",
-                            "content": f"{service_level}",
-                            "color": f"{service_level_color}",
+                            "content": f"{self.fake_good_service_levels[alert_id]\
+                                            + random.randint(-1,1) if is_solved\
+                                            else self.fake_bad_service_levels[alert_id]\
+                                            + random.randint(-1,1)}",
+                            "color": f"{"green" if is_solved else "red"}",
                         },
                         {"title": "ACR", "content": f"{acr}", "color": f"{acr_color}"},
-                        {"title": "ASA", "content": f"{asa}", "color": f"{asa_color}"},
+                        {"title": "ASA", "content": f"{\
+                            self.format_timedelta(self.fake_asas[alert_id])\
+                                } min", "color": "yellow"},
                         {"title": "FCR", "content": f"{fcr}", "color": f"{fcr_color}"},
                         {
                             "title": "Adherence",

@@ -1,4 +1,3 @@
 Faker
 Flask
-mysql-connector-python
 flask-cors

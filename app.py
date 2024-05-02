@@ -2,7 +2,6 @@
 Fake Amazon Connect API
 """
 
-import mysql.connector
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from data_fakeada import FakeInfo
@@ -10,12 +9,6 @@ from data_fakeada import FakeInfo
 
 app = Flask(__name__)
 CORS(app, origins="*")
-db = mysql.connector.connect(
-    host="",
-    user="",
-    password="",
-    database="",
-)
 fake_data = FakeInfo()
 
 
@@ -52,23 +45,11 @@ def metrics_data():
     """
     try:
         data = request.json
-        db.reconnect()
-        cursor = db.cursor()
-        cursor.execute(
-            "SELECT resource, is_solved FROM alert WHERE identifier = %s",
-            (data["identifier"],),
-        )
-        result = cursor.fetchone()
-        cursor.close()
-        # Get the resource column from the result
-        # example: "routing-profile:123456"
-        if not result:
-            return jsonify({"error": "Alert not found or resource is null"}), 404
-        resource_arn = result[0].split(":")[0]
-        is_solved = True if result[1] == 1 else False
-
+        alert_id = data.get("alertId")
+        resource_arn = data.get("resourceArn").split(":")[0]
+        is_solved = data.get("isSolved")
         try:
-            data_to_return = fake_data.fake_info(resource_arn, is_solved)
+            data_to_return = fake_data.fake_info(alert_id, resource_arn, is_solved)
         except ValueError:
             return jsonify({"error": "Invalid type"}), 400
         return jsonify(data_to_return)
