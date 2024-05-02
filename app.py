@@ -4,10 +4,12 @@ Fake Amazon Connect API
 
 import mysql.connector
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from data_fakeada import FakeInfo
 
 
 app = Flask(__name__)
+CORS(app, origins='*')
 db = mysql.connector.connect(
     host="",
     user="",
