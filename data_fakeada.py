@@ -79,11 +79,8 @@ class FakeInfo:
                     "elements": [
                         {
                             "title": "Service Level",
-                            "content": f"{self.fake_good_service_levels[alert_id]\
-                                            + random.randint(-1,1) if is_solved\
-                                            else self.fake_bad_service_levels[alert_id]\
-                                            + random.randint(-1,1)}",
-                            "color": f"{"green" if is_solved else "red"}",
+                            "content": f"{self.fake_good_service_levels[alert_id] + random.randint(-1,1) if is_solved else self.fake_bad_service_levels[alert_id] + random.randint(-1,1)}",
+                            "color": "green" if is_solved else "red",
                         },
                         {"title": "ACR", "content": f"{acr}", "color": f"{acr_color}"},
                         {"title": "ASA", "content": f"{asa}", "color": f"{asa_color}"},
@@ -136,11 +133,8 @@ class FakeInfo:
                     "elements": [
                         {
                             "title": "Service Level",
-                            "content": f"{self.fake_good_service_levels[alert_id]\
-                                            + random.randint(-1,1) if is_solved\
-                                            else self.fake_bad_service_levels[alert_id]\
-                                            + random.randint(-1,1)}",
-                            "color": f"{"green" if is_solved else "red"}",
+                            "content": f"{self.fake_good_service_levels[alert_id] + random.randint(-1,1) if is_solved else self.fake_bad_service_levels[alert_id] + random.randint(-1,1)}",
+                            "color": "green" if is_solved else "red",
                         },
                         {"title": "ACR", "content": f"{acr}", "color": f"{acr_color}"},
                         {"title": "ASA", "content": f"{asa}", "color": f"{asa_color}"},
@@ -185,14 +179,13 @@ class FakeInfo:
                         },
                         {
                             "title": "Duration",
-                            "content": f"{\
-                                self.format_timedelta(self.fake_durations[alert_id])} min",
+                            "content": f"{ self.format_timedelta(self.fake_durations[alert_id])} min",
                             "color": "red",
                         },
                         {
                             "title": "Emotion",
-                            "content": f"{"POSITIVE" if is_solved else "NEGATIVE"}",
-                            "color": f"{"green" if is_solved else "red"}",
+                            "content": "POSITIVE" if is_solved else "NEGATIVE",
+                            "color": "green" if is_solved else "red",
                         },
                     ],
                 },
@@ -201,16 +194,11 @@ class FakeInfo:
                     "elements": [
                         {
                             "title": "Service Level",
-                            "content": f"{self.fake_good_service_levels[alert_id]\
-                                            + random.randint(-1,1) if is_solved\
-                                            else self.fake_bad_service_levels[alert_id]\
-                                            + random.randint(-1,1)}",
-                            "color": f"{"green" if is_solved else "red"}",
+                            "content": f"{self.fake_good_service_levels[alert_id] + random.randint(-1,1) if is_solved else self.fake_bad_service_levels[alert_id] + random.randint(-1,1)}",
+                            "color": "green" if is_solved else "red",
                         },
                         {"title": "ACR", "content": f"{acr}", "color": f"{acr_color}"},
-                        {"title": "ASA", "content": f"{\
-                            self.format_timedelta(self.fake_asas[alert_id])\
-                                } min", "color": "yellow"},
+                        {"title": "ASA", "content": f"{ self.format_timedelta(self.fake_asas[alert_id]) } min", "color": "yellow"},
                         {"title": "FCR", "content": f"{fcr}", "color": f"{fcr_color}"},
                         {
                             "title": "Adherence",
